@@ -126,14 +126,14 @@ st.markdown("### 💬 Chat de Traducción")
 # Display chat messages
 chat_container = st.container()
 with chat_container:
-    for message in st.session_state.messages:
+    for idx, message in enumerate(st.session_state.messages):
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
             
             # Add copy button for assistant messages (translations)
             if message["role"] == "assistant" and message["content"] != st.session_state.messages[0]["content"]:
                 if CLIPBOARD_AVAILABLE:
-                    if st.button("📋 Copiar traducción", key=f"copy_{len(st.session_state.messages)}_{message['content'][:20]}"):
+                    if st.button("📋 Copiar traducción", key=f"copy_msg_{idx}_{hash(message['content']) % 10000}"):
                         try:
                             pyperclip.copy(message["content"])
                             st.success("✅ ¡Traducción copiada al portapapeles!")
@@ -168,7 +168,7 @@ if prompt := st.chat_input("Escribe aquí tu frase en español..."):
                 
                 # Add copy button for the latest translation
                 if CLIPBOARD_AVAILABLE:
-                    if st.button("📋 Copiar traducción", key=f"copy_latest_{len(st.session_state.messages)}"):
+                    if st.button("📋 Copiar traducción", key=f"copy_latest_{len(st.session_state.messages)}_{hash(translation) % 10000}"):
                         try:
                             pyperclip.copy(translation)
                             st.success("✅ ¡Traducción copiada al portapapeles!")
@@ -191,3 +191,89 @@ if len(st.session_state.messages) > 1:
         st.session_state.last_translation = ""
         st.rerun()
 
+# Separator
+st.markdown("---")
+
+# Examples section
+st.markdown("### 💡 Ejemplos de uso")
+
+examples = [
+    "¿Qué tal si vamos a tomar unas cervezas?",
+    "Estoy súper cansado, no puedo más",
+    "¡Qué genial! Me encanta esta canción",
+    "¿Tienes ganas de salir a dar una vuelta?",
+    "Está lloviendo a cántaros",
+    "No me vengas con cuentos"
+]
+
+# Create example buttons
+cols = st.columns(3)
+for i, example in enumerate(examples):
+    col_idx = i % 3
+    with cols[col_idx]:
+        if st.button(f"📝 {example[:20]}...", key=f"example_{i}", use_container_width=True):
+            # Add example to chat
+            st.session_state.messages.append({"role": "user", "content": example})
+            
+            # Get translation
+            try:
+                translation = get_llm_response(example)
+                st.session_state.messages.append({"role": "assistant", "content": translation})
+                st.session_state.last_translation = translation
+                st.rerun()
+            except Exception as e:
+                error_msg = f"❌ Error al traducir: {str(e)}"
+                st.session_state.messages.append({"role": "assistant", "content": error_msg})
+                st.rerun()
+
+# Footer
+st.markdown("---")
+st.markdown("""
+<div style="text-align: center; color: #666; padding: 1rem;">
+    <p>🤖 Desarrollado con IA para traducciones naturales y coloquiales</p>
+    <p><small>Tip: Las traducciones pueden variar según el contexto. ¡Experimenta con diferentes frases!</small></p>
+</div>
+""", unsafe_allow_html=True)
+
+# Sidebar with additional info
+with st.sidebar:
+    st.markdown("## ℹ️ Información")
+    st.markdown("""
+    **¿Cómo funciona?**
+    
+    1. 💬 Escribe tu frase en el chat
+    2. ⏎ Presiona Enter para enviar
+    3. 🇧🇷 Obtén la traducción coloquial
+    4. 📋 Copia al portapapeles si necesitas
+    
+    **Características:**
+    - ✅ Interfaz de chat intuitiva
+    - ✅ Traducciones naturales
+    - ✅ Estilo coloquial brasileño
+    - ✅ Expresiones cotidianas
+    - ✅ Historial de conversación
+    - ✅ Función copiar al portapapeles
+    """)
+    
+    st.markdown("---")
+    st.markdown("### 🎯 Consejos")
+    st.markdown("""
+    - Usa frases completas para mejores resultados
+    - Incluye contexto cuando sea necesario
+    - Prueba diferentes expresiones
+    - Usa los ejemplos como punto de partida
+    """)
+    
+    st.markdown("---")
+    st.markdown("### 📊 Estadísticas de la sesión")
+    translation_count = len([msg for msg in st.session_state.messages if msg["role"] == "assistant"]) - 1
+    st.metric("Traducciones realizadas", translation_count)
+    
+    if st.session_state.last_translation and CLIPBOARD_AVAILABLE:
+        st.markdown("### 📋 Última traducción")
+        if st.button("📋 Copiar última traducción", key="sidebar_copy_last", use_container_width=True):
+            try:
+                pyperclip.copy(st.session_state.last_translation)
+                st.success("✅ ¡Copiado!")
+            except Exception as e:
+                st.error("❌ Error al copiar")
