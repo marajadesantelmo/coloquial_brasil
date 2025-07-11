@@ -47,11 +47,54 @@ st.markdown("""
     .copy-button:hover {
         background-color: #236B47;
     }
+    
+    /* Chat message styling for better contrast */
     .stChatMessage {
-        background-color: #f8f9fa;
         border-radius: 10px;
         padding: 1rem;
         margin: 0.5rem 0;
+    }
+    
+    /* User messages - dark blue background */
+    .stChatMessage[data-testid="chat-message-user"] {
+        background-color: #1f2937 !important;
+        color: #ffffff !important;
+        border-left: 4px solid #3b82f6;
+    }
+    
+    /* Assistant messages - dark green background */
+    .stChatMessage[data-testid="chat-message-assistant"] {
+        background-color: #1f2d23 !important;
+        color: #ffffff !important;
+        border-left: 4px solid #10b981;
+    }
+    
+    /* Ensure text in chat messages is white */
+    .stChatMessage p, .stChatMessage div, .stChatMessage span {
+        color: #ffffff !important;
+    }
+    
+    /* Chat input styling */
+    .stChatInput > div > div > div > div {
+        background-color: #f8f9fa;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+    }
+    
+    /* Button styling in chat messages */
+    .stChatMessage .stButton > button {
+        background-color: #2E8B57;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+    }
+    
+    .stChatMessage .stButton > button:hover {
+        background-color: #236B47;
+        color: white;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -233,38 +276,3 @@ with st.sidebar:
                 st.success("✅ ¡Copiado!")
             except Exception as e:
                 st.error("❌ Error al copiar")
-
-
-# Footer
-st.markdown("---")
-st.markdown("""
-<div style="text-align: center; color: #666; padding: 1rem;">
-    <p>🤖 Desarrollado con IA para traducciones naturales y coloquiales</p>
-    <p><small>Tip: Las traducciones pueden variar según el contexto. ¡Experimenta con diferentes frases!</small></p>
-</div>
-""", unsafe_allow_html=True)
-
-# Sidebar with additional info
-with st.sidebar:
-    st.markdown("## ℹ️ Información")
-    st.markdown("""
-    **¿Cómo funciona?**
-    
-    1. 📝 Escribe tu frase en español
-    2. 🔄 Haz clic en "Traducir"
-    3. 🇧🇷 Obtén la traducción coloquial
-    
-    **Características:**
-    - ✅ Traducciones naturales
-    - ✅ Estilo coloquial brasileño
-    - ✅ Expresiones cotidianas
-    - ✅ Contexto conversacional
-    """)
-    
-    st.markdown("---")
-    st.markdown("### 🎯 Consejos")
-    st.markdown("""
-    - Usa frases completas para mejores resultados
-    - Incluye contexto cuando sea necesario
-    - Prueba diferentes expresiones
-    """)
