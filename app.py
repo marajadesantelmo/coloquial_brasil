@@ -104,14 +104,15 @@ if "messages" not in st.session_state:
     st.session_state.messages = []
     st.session_state.messages.append({
         "role": "assistant", 
-        "content": "¡Hola! 👋 Soy tu traductor de español a portugués brasileño coloquial. Escribe cualquier frase en español y te la traduciré al estilo informal brasileño. ¡Vamos a empezar!"
+        "content": "¡Hola! 👋 Soy tu traductor de español a portugués brasileño coloquial. Escribe cualquier frase en español y te la traduciré al estilo informal brasileño."
     })
 
 if "last_translation" not in st.session_state:
     st.session_state.last_translation = ""
 
 # Main title
-st.markdown('<h1 class="main-header">🇪🇸 ➡️ 🇧🇷 Traductor a Portugués Brasileño Coloquial</h1>', unsafe_allow_html=True)
+st.markdown('<h1 class="main-header"> Bate-Papo </h1>', unsafe_allow_html=True)
+st.markdown('<h2>Traductor a Portugués Brasileño Coloquial</h2>', unsafe_allow_html=True)
 
 # Description
 st.markdown("""
