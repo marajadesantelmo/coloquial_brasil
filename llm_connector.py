@@ -2,17 +2,14 @@ import os
 import json
 import time
 from openai import OpenAI
-import mysql.connector
-from mysql.connector import Error
+
 
 
 # Load environment variables or tokens
 try:
-    from tokens import openrouter_key, mysql_password, mysql_database
+    from tokens import openrouter_key
 except ImportError:
     openrouter_key = os.getenv('OPENROUTER_API_KEY')
-    mysql_password = os.getenv('MYSQL_PASSWORD')
-    mysql_database = os.getenv('MYSQL_DATABASE')
 
 # Database connection function with reconnect capability
 def get_db_connection():
