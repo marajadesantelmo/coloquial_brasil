@@ -126,23 +126,21 @@ with chat_container:
             
             # Add copy button for assistant messages (translations)
             if message["role"] == "assistant" and message["content"] != st.session_state.messages[0]["content"]:
-                if CLIPBOARD_AVAILABLE:
-                    button_key = f"copy_btn_{idx}"
-                    if st.button("📋 Copiar traducción", key=button_key):
-                        try:
-                            pyperclip.copy(message["content"])
-                            st.session_state.show_copy_success[button_key] = True
-                            st.rerun()
-                        except Exception as e:
-                            st.error("❌ Error al copiar al portapapeles")
-                    
-                    # Show success message if button was just clicked
-                    if st.session_state.show_copy_success.get(button_key, False):
-                        st.success("✅ ¡Traducción copiada al portapapeles!")
-                        # Clear the success flag after showing
-                        st.session_state.show_copy_success[button_key] = False
-                else:
-                    st.info("💡 Instala pyperclip para copiar al portapapeles: `pip install pyperclip`")
+                button_key = f"copy_btn_{idx}"
+                if st.button("📋 Copiar traducción", key=button_key):
+                    try:
+                        pyperclip.copy(message["content"])
+                        st.session_state.show_copy_success[button_key] = True
+                        st.rerun()
+                    except Exception as e:
+                        st.error("❌ Error al copiar al portapapeles")
+                
+                # Show success message if button was just clicked
+                if st.session_state.show_copy_success.get(button_key, False):
+                    st.success("✅ ¡Traducción copiada al portapapeles!")
+                    # Clear the success flag after showing
+                    st.session_state.show_copy_success[button_key] = False
+
 
 # Chat input
 if prompt := st.chat_input("Escribe aquí tu frase en español..."):
