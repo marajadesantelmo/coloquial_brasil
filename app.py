@@ -1,6 +1,5 @@
 import streamlit as st
 import time
-import pyperclip
 from llm_connector import get_llm_response
 
 # Page configuration
@@ -10,6 +9,37 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed"
 )
+
+# JavaScript function for copying to clipboard
+def copy_to_clipboard_js(text, button_id):
+    """Generate JavaScript code to copy text to clipboard"""
+    js_code = f"""
+    <script>
+    function copyToClipboard_{button_id}() {{
+        const text = `{text.replace('`', '\\`').replace('\\', '\\\\')}`;
+        navigator.clipboard.writeText(text).then(function() {{
+            // Show success message by changing button text temporarily
+            const button = document.querySelector('[data-testid="stButton"] button');
+            if (button && button.innerText.includes('📋')) {{
+                const originalText = button.innerText;
+                button.innerText = '✅ ¡Copiado!';
+                button.style.backgroundColor = '#10b981';
+                setTimeout(() => {{
+                    button.innerText = originalText;
+                    button.style.backgroundColor = '#2E8B57';
+                }}, 2000);
+            }}
+        }}).catch(function(err) {{
+            console.error('Error copying text: ', err);
+            alert('Error al copiar al portapapeles');
+        }});
+    }}
+    
+    // Auto-trigger the copy function
+    copyToClipboard_{button_id}();
+    </script>
+    """
+    return js_code
 
 # Custom CSS for better styling
 st.markdown("""
@@ -84,6 +114,7 @@ st.markdown("""
         padding: 0.4rem 0.8rem;
         font-size: 0.9rem;
         margin-top: 0.5rem;
+        transition: all 0.3s ease;
     }
     
     .stChatMessage .stButton > button:hover {
@@ -104,8 +135,8 @@ if "messages" not in st.session_state:
 if "last_translation" not in st.session_state:
     st.session_state.last_translation = ""
 
-if "show_copy_success" not in st.session_state:
-    st.session_state.show_copy_success = {}
+if "copy_clicked" not in st.session_state:
+    st.session_state.copy_clicked = {}
 
 # Main title
 st.markdown('<h1 class="main-header"> Bate-Papo </h1>', unsafe_allow_html=True)
@@ -128,18 +159,11 @@ with chat_container:
             if message["role"] == "assistant" and message["content"] != st.session_state.messages[0]["content"]:
                 button_key = f"copy_btn_{idx}"
                 if st.button("📋 Copiar traducción", key=button_key):
-                    try:
-                        pyperclip.copy(message["content"])
-                        st.session_state.show_copy_success[button_key] = True
-                        st.rerun()
-                    except Exception as e:
-                        st.error("❌ Error al copiar al portapapeles")
-                
-                # Show success message if button was just clicked
-                if st.session_state.show_copy_success.get(button_key, False):
-                    st.success("✅ ¡Traducción copiada al portapapeles!")
-                    # Clear the success flag after showing
-                    st.session_state.show_copy_success[button_key] = False
+                    # Execute JavaScript to copy to clipboard
+                    st.components.v1.html(
+                        copy_to_clipboard_js(message["content"], button_key),
+                        height=0
+                    )
 
 
 # Chat input
@@ -174,7 +198,7 @@ if len(st.session_state.messages) > 1:
     if st.button("🗑️ Limpiar chat", type="secondary"):
         st.session_state.messages = [st.session_state.messages[0]]  # Keep only the initial message
         st.session_state.last_translation = ""
-        st.session_state.show_copy_success = {}  # Clear copy success flags
+        st.session_state.copy_clicked = {}  # Clear copy flags
         st.rerun()
 
 # Footer
