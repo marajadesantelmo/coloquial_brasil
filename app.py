@@ -200,12 +200,3 @@ if len(st.session_state.messages) > 1:
         st.session_state.last_translation = ""
         st.session_state.copy_clicked = {}  # Clear copy flags
         st.rerun()
-
-# Footer
-st.markdown("---")
-st.markdown("""
-<div style="text-align: center; color: #666; padding: 1rem;">
-    <p>🤖 Desarrollado con IA para traducciones naturales y coloquiales</p>
-    <p><small>Tip: Las traducciones pueden variar según el contexto. ¡Experimenta con diferentes frases!</small></p>
-</div>
-""", unsafe_allow_html=True)
