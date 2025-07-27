@@ -110,6 +110,9 @@ if "messages" not in st.session_state:
 if "last_translation" not in st.session_state:
     st.session_state.last_translation = ""
 
+if "show_copy_success" not in st.session_state:
+    st.session_state.show_copy_success = {}
+
 # Main title
 st.markdown('<h1 class="main-header"> Bate-Papo </h1>', unsafe_allow_html=True)
 st.markdown('<h2>Traductor a Portugués Brasileño Coloquial</h2>', unsafe_allow_html=True)
@@ -119,9 +122,6 @@ st.markdown("""
 **¡Bienvenido!** Chatea conmigo para traducir frases del español al portugués brasileño coloquial.
 Perfecto para conversaciones informales y expresiones cotidianas.
 """)
-
-# Chat interface
-st.markdown("### 💬 Chat de Traducción")
 
 # Display chat messages
 chat_container = st.container()
@@ -133,14 +133,20 @@ with chat_container:
             # Add copy button for assistant messages (translations)
             if message["role"] == "assistant" and message["content"] != st.session_state.messages[0]["content"]:
                 if CLIPBOARD_AVAILABLE:
-                    if st.button("📋 Copiar traducción", key=f"copy_msg_{idx}_{hash(message['content']) % 10000}"):
+                    button_key = f"copy_btn_{idx}"
+                    if st.button("📋 Copiar traducción", key=button_key):
                         try:
                             pyperclip.copy(message["content"])
-                            st.success("✅ ¡Traducción copiada al portapapeles!")
-                            time.sleep(1)
+                            st.session_state.show_copy_success[button_key] = True
                             st.rerun()
                         except Exception as e:
                             st.error("❌ Error al copiar al portapapeles")
+                    
+                    # Show success message if button was just clicked
+                    if st.session_state.show_copy_success.get(button_key, False):
+                        st.success("✅ ¡Traducción copiada al portapapeles!")
+                        # Clear the success flag after showing
+                        st.session_state.show_copy_success[button_key] = False
                 else:
                     st.info("💡 Instala pyperclip para copiar al portapapeles: `pip install pyperclip`")
 
@@ -166,19 +172,6 @@ if prompt := st.chat_input("Escribe aquí tu frase en español..."):
                 # Add assistant response to chat history
                 st.session_state.messages.append({"role": "assistant", "content": translation})
                 
-                # Add copy button for the latest translation
-                if CLIPBOARD_AVAILABLE:
-                    if st.button("📋 Copiar traducción", key=f"copy_latest_{len(st.session_state.messages)}_{hash(translation) % 10000}"):
-                        try:
-                            pyperclip.copy(translation)
-                            st.success("✅ ¡Traducción copiada al portapapeles!")
-                            time.sleep(1)
-                            st.rerun()
-                        except Exception as e:
-                            st.error("❌ Error al copiar al portapapeles")
-                else:
-                    st.info("💡 Instala pyperclip para copiar: `pip install pyperclip`")
-                
             except Exception as e:
                 error_msg = f"❌ Error al traducir: {str(e)}"
                 st.error(error_msg)
@@ -189,6 +182,7 @@ if len(st.session_state.messages) > 1:
     if st.button("🗑️ Limpiar chat", type="secondary"):
         st.session_state.messages = [st.session_state.messages[0]]  # Keep only the initial message
         st.session_state.last_translation = ""
+        st.session_state.show_copy_success = {}  # Clear copy success flags
         st.rerun()
 
 # Footer
