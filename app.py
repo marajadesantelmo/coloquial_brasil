@@ -1,12 +1,6 @@
 import streamlit as st
 import time
-try:
-    import pyperclip
-    CLIPBOARD_AVAILABLE = True
-except ImportError:
-    CLIPBOARD_AVAILABLE = False
-    st.warning("⚠️ Para usar la función de copiar al portapapeles, instala: pip install pyperclip")
-
+import pyperclip
 from llm_connector import get_llm_response
 
 # Page configuration
